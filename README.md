@@ -38,13 +38,6 @@ Userscriptsは無料のオープンソースSafari拡張です。ソースコー
 5. iPhoneまたはiPadのコントロールセンターで「次へ」「前へ」を試します。
 6. Apple Watchの「再生中」で「次へ」「前へ」を試します。
 
-`Minimize`を押すとパネルが小さなメニューボタンになります。ボタンはドラッグで移動でき、タップするとパネルへ戻ります。位置はリロードすると初期化されます。
-
-次のMedia Session操作を割り当てています。
-
-- `nexttrack`、`seekforward`: 次ページ
-- `previoustrack`、`seekbackward`: 前ページ
-
 ## 結果表示
 
 操作パネルとSafari Web Inspectorのconsoleに、最終実行時刻、入力元、試した方式、結果を表示します。
