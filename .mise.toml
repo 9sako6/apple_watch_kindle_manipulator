@@ -1,0 +1,11 @@
+[tools]
+node = "24"
+
+[tasks.setup]
+run = "npm ci"
+
+[tasks.check]
+run = "npm run check"
+
+[tasks.release]
+run = "node scripts/release.mjs"
