@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="ja">
+<html lang="en">
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -124,15 +124,15 @@
     <main>
       <p class="version">Version {{VERSION}}</p>
       <h1>Apple Watch Kindle Manipulator</h1>
-      <p class="summary">Kindleのページ送り用スクリプトをコピーするか、Userscriptsで直接開きます。</p>
+      <p class="summary">Copy the Kindle page-turning script or open it directly in Userscripts.</p>
 
       <div class="actions">
-        <button id="copy-script" type="button">スクリプトをコピー</button>
-        <a class="link-button" href="./kindle-remote.user.js">Userscriptsで開く</a>
+        <button id="copy-script" type="button">Copy script</button>
+        <a class="link-button" href="./kindle-remote.user.js">Open in Userscripts</a>
       </div>
 
       <p id="status" role="status" aria-live="polite"></p>
-      <textarea id="script-source" readonly hidden aria-label="ユーザースクリプト"></textarea>
+      <textarea id="script-source" readonly hidden aria-label="Userscript source"></textarea>
     </main>
 
     <script>
@@ -150,7 +150,7 @@
 
       button.addEventListener("click", async () => {
         button.disabled = true;
-        status.textContent = "スクリプトを読み込んでいます";
+        status.textContent = "Loading script";
 
         try {
           const response = await fetch("./kindle-remote.user.js", { cache: "no-store" });
@@ -162,15 +162,15 @@
           } catch {
             selectSource(source);
             if (!document.execCommand("copy")) {
-              status.textContent = "スクリプトを選択しました。コピーを実行してください";
+              status.textContent = "The script is selected. Copy it manually.";
               return;
             }
           }
 
-          button.textContent = "コピーしました";
-          status.textContent = "クリップボードへコピーしました";
+          button.textContent = "Copied";
+          status.textContent = "Copied to clipboard";
         } catch {
-          status.textContent = "コピーできませんでした。Userscriptsで開いてください";
+          status.textContent = "Copy failed. Open the script in Userscripts instead.";
         } finally {
           button.disabled = false;
         }

@@ -1,42 +1,44 @@
 # Apple Watch Kindle Manipulator
 
-Apple Watchから、iPhoneやiPadのSafariで開いているKindleのページをめくれます。
+[日本語](README.ja.md)
 
-寝ながらKindleを読むときに、画面へ手を伸ばさず「次へ」「前へ」を操作するためのスクリプトです。Apple Developer Programは必要ありません。
+Turn pages in Kindle on your iPhone or iPad from your Apple Watch.
 
-## 必要なもの
+This userscript lets you go forward and back while reading in bed without reaching for the screen. It does not require the Apple Developer Program.
 
-- iPhoneまたはiPad
-- Apple Watch
-- 無料のSafari拡張[Userscripts](https://apps.apple.com/app/userscripts/id1463298887)
+## Requirements
 
-## インストール
+- An iPhone or iPad
+- An Apple Watch
+- The free [Userscripts](https://apps.apple.com/app/userscripts/id1463298887) Safari extension
 
-1. iPhoneまたはiPadへUserscriptsをインストールし、一度開きます。
-2. 「設定」>「アプリ」>「Safari」>「機能拡張」>「Userscripts」を有効にします。
-3. UserscriptsのWebサイトアクセスで、使うKindleサイトを許可します。
+## Install
+
+1. Install Userscripts on your iPhone or iPad and open it once.
+2. Open Settings > Apps > Safari > Extensions > Userscripts, then enable it.
+3. Allow Userscripts to access the Kindle site you use:
    - `read.amazon.co.jp`
    - `read.amazon.com`
    - `read.amazon.co.uk`
-4. Safariで[インストールページ](https://9sako6.github.io/apple_watch_kindle_manipulator/)を開き、`Userscriptsで開く`を押します。
+4. Open the [install page](https://9sako6.github.io/apple_watch_kindle_manipulator/) in Safari and tap `Open in Userscripts`.
 
-## 使い方
+## Use
 
-1. SafariのKindle for Webで本を開きます。
-2. 右下のパネルで`Next`と`Previous`が動くことを確認します。
-3. `Enable remote controls`を押します。
-4. Apple Watchで「再生中」を開き、「次へ」「前へ」を押します。
+1. Open a book in Kindle for Web in Safari.
+2. Confirm that `Next` and `Previous` work in the panel at the bottom right.
+3. Tap `Enable remote controls`.
+4. Open Now Playing on your Apple Watch and use the next and previous controls.
 
-ページの向きが逆なら、パネルの`Page direction`を`Next right`または`Next left`へ変更してください。
+If pages move in the wrong direction, set `Page direction` to `Next right` or `Next left`.
 
-## 困ったとき
+## Troubleshooting
 
-- 途中で動かなくなったら、Kindleのページを再読み込みしてもう一度有効にします。
-- Apple Watchに操作が出ないときは、iPhoneまたはiPadのコントロールセンターで先に「次へ」「前へ」を試します。
-- 動作は端末やOSのバージョン、再生状態に左右されます。
+- If it stops working, reload Kindle and enable the remote controls again.
+- If the controls do not appear on your Apple Watch, try next and previous in Control Center on your iPhone or iPad first.
+- Behavior can vary by device, OS version, and playback state.
 
-このスクリプトはKindleの本文やアカウント情報を保存・送信しません。
+This script does not store or send Kindle content or account information.
 
-## ライセンス
+## License
 
 [MIT License](LICENSE)

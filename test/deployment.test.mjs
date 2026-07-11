@@ -35,7 +35,12 @@ test("release workflow publishes tagged assets without deploying Pages", async (
   assert.doesNotMatch(source, /upload-pages-artifact|deploy-pages|github-pages/);
 });
 
-test("README sends mobile users to the install page", async () => {
-  const source = await readFile("README.md", "utf8");
-  assert.match(source, /https:\/\/9sako6\.github\.io\/apple_watch_kindle_manipulator\//);
+test("README translations send mobile users to the install page", async () => {
+  const english = await readFile("README.md", "utf8");
+  const japanese = await readFile("README.ja.md", "utf8");
+  const installPage = /https:\/\/9sako6\.github\.io\/apple_watch_kindle_manipulator\//;
+
+  assert.match(english, /^\[日本語\]\(README\.ja\.md\)$/m);
+  assert.match(english, installPage);
+  assert.match(japanese, installPage);
 });

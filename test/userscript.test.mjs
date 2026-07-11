@@ -34,6 +34,9 @@ test("install page can open and copy the built userscript", async () => {
   assert.match(html, /<h1>Apple Watch Kindle Manipulator<\/h1>/);
   assert.match(html, /href="\.\/kindle-remote\.user\.js"/);
   assert.match(html, /id="copy-script"/);
+  assert.match(html, /<html lang="en">/);
+  assert.match(html, />Copy script<\/button>/);
+  assert.match(html, />Open in Userscripts<\/a>/);
   assert.match(html, /navigator\.clipboard\.writeText/);
   assert.match(html, /document\.execCommand\("copy"\)/);
   assert.match(html, /<textarea[^>]+readonly/);
