@@ -1,12 +1,12 @@
-# Apple Watch Kindle Remote
+# Apple Watch Kindle Manipulator
 
 Apple WatchやiOS/iPadOSのメディア操作を、iPhoneまたはiPadのSafari上にあるKindle for Web / Kindle Cloud Readerのページ送りへ変換するUserscripts用ユーザースクリプトです。Apple Developer Programや独自のiOSアプリは必要ありません。
 
 ## 最新版をインストール
 
-iPhoneまたはiPadのSafariで[ビルド済みユーザースクリプト](https://9sako6.github.io/apple_watch_kindle_manipulator/kindle-remote.user.js)を開き、Userscriptsの機能拡張メニューからインストールします。
+iPhoneまたはiPadのSafariで[インストールページ](https://9sako6.github.io/apple_watch_kindle_manipulator/)を開きます。スクリプトをコピーするか、Userscriptsで直接開けます。
 
-更新は自動ではありません。新しいバージョンへ更新するときも同じリンクから手動で再インストールしてください。過去のビルドは[GitHub Releases](https://github.com/9sako6/apple_watch_kindle_manipulator/releases)から取得できます。
+更新は自動ではありません。新しいバージョンへ更新するときも同じページから手動で再インストールしてください。[ビルド済みJSを直接開く](https://9sako6.github.io/apple_watch_kindle_manipulator/kindle-remote.user.js)こともできます。過去のビルドは[GitHub Releases](https://github.com/9sako6/apple_watch_kindle_manipulator/releases)から取得できます。
 
 ## 必要なもの
 
@@ -25,14 +25,14 @@ Userscriptsは無料のオープンソースSafari拡張です。ソースコー
    - `read.amazon.co.jp`
    - `read.amazon.com`
    - `read.amazon.co.uk`
-5. Safariで[ビルド済みユーザースクリプト](https://9sako6.github.io/apple_watch_kindle_manipulator/kindle-remote.user.js)を開きます。
-6. Safariの機能拡張メニューでUserscriptsを開き、表示されるスクリプトをインストールします。
+5. Safariで[インストールページ](https://9sako6.github.io/apple_watch_kindle_manipulator/)を開きます。
+6. `Userscriptsで開く`を押し、Safariの機能拡張メニューからインストールします。必要なら`スクリプトをコピー`も利用できます。
 7. Kindle for Webを開き、スクリプトが有効になっていることを確認します。
 
 ## 使い方
 
 1. Kindle for Webで本を開きます。
-2. 右下の`Kindle Remote`パネルで`Next`と`Previous`を試します。
+2. 右下の`Apple Watch Kindle Manipulator`パネルで`Next`と`Previous`を試します。
 3. `Enable remote controls`を押します。
 4. iPhoneまたはiPadのコントロールセンターで「次へ」「前へ」を試します。
 5. Apple Watchの「再生中」で「次へ」「前へ」を試します。

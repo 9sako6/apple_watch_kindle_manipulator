@@ -1,7 +1,7 @@
-const LOG_PREFIX = "[Apple Watch Kindle Remote]";
-const PANEL_ID = "apple-watch-kindle-remote-panel";
-const HIDDEN_STORAGE_KEY = "apple-watch-kindle-remote:hidden";
-const AUDIO_ID = "apple-watch-kindle-remote-silent-audio";
+const LOG_PREFIX = "[apple_watch_kindle_manipulator]";
+const PANEL_ID = "apple-watch-kindle-manipulator-panel";
+const HIDDEN_STORAGE_KEY = "apple_watch_kindle_manipulator:hidden";
+const AUDIO_ID = "apple-watch-kindle-manipulator-silent-audio";
 const FALLBACK_DELAY_MS = 90;
 
 interface DirectionConfig {
@@ -195,7 +195,7 @@ function semanticClick(config: DirectionConfig): string | null {
     "button,a,[role='button'],[aria-label],[title],[data-testid],[class*='next' i],[class*='prev' i],[class*='back' i]"
   ));
   const scored = candidates.flatMap((element) => {
-    if (element.closest("#apple-watch-kindle-remote-panel")) return [];
+    if (element.closest(`#${PANEL_ID}`)) return [];
     const rect = element.getBoundingClientRect();
     const style = getComputedStyle(element);
     if (!rect.width || !rect.height || style.display === "none" || style.visibility === "hidden") return [];
@@ -260,7 +260,7 @@ async function enableRemoteControls(): Promise<void> {
 
   if (typeof MediaMetadata === "function") {
     navigator.mediaSession.metadata = new MediaMetadata({
-      title: "Kindle Remote",
+      title: "Apple Watch Kindle Manipulator",
       artist: "Userscripts"
     });
   }
@@ -306,7 +306,7 @@ function installStyles(): void {
       color: #181818; box-shadow: 0 6px 24px rgba(0,0,0,.18);
       font: 13px/1.35 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; letter-spacing: 0; }
     #${PANEL_ID}[hidden] { display: none; }
-    #${PANEL_ID} .awkr-title { margin: 0 0 8px; font-size: 13px; font-weight: 700; }
+    #${PANEL_ID} .awkr-title { margin: 0 0 8px; overflow-wrap: anywhere; font-size: 13px; font-weight: 700; }
     #${PANEL_ID} .awkr-controls { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
     #${PANEL_ID} .awkr-button { min-height: 34px; box-sizing: border-box; border: 1px solid rgba(30,30,30,.22);
       border-radius: 6px; background: #fff; color: #181818; font: inherit; font-weight: 600;
@@ -326,10 +326,10 @@ function createPanel(): void {
 
   const panel = document.createElement("aside");
   panel.id = PANEL_ID;
-  panel.setAttribute("aria-label", "Apple Watch Kindle Remote controls");
+  panel.setAttribute("aria-label", "Apple Watch Kindle Manipulator controls");
   const title = document.createElement("div");
   title.className = "awkr-title";
-  title.textContent = "Kindle Remote";
+  title.textContent = "Apple Watch Kindle Manipulator";
   const controls = document.createElement("div");
   controls.className = "awkr-controls";
   controls.append(

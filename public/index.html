@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="theme-color" content="#f3f5f7">
+    <title>Apple Watch Kindle Manipulator</title>
+    <style>
+      :root {
+        color-scheme: light;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        color: #17201e;
+        background: #f3f5f7;
+      }
+
+      * { box-sizing: border-box; }
+
+      body {
+        min-width: 280px;
+        min-height: 100dvh;
+        margin: 0;
+        padding: max(28px, env(safe-area-inset-top)) max(20px, env(safe-area-inset-right))
+          max(28px, env(safe-area-inset-bottom)) max(20px, env(safe-area-inset-left));
+        display: grid;
+        place-items: center;
+      }
+
+      main { width: min(100%, 520px); }
+
+      .version {
+        margin: 0 0 18px;
+        color: #52605d;
+        font-size: 13px;
+        font-weight: 650;
+      }
+
+      h1 {
+        max-width: 12ch;
+        margin: 0;
+        overflow-wrap: anywhere;
+        font-size: clamp(30px, 8vw, 44px);
+        line-height: 1.08;
+        letter-spacing: 0;
+      }
+
+      .summary {
+        max-width: 38ch;
+        margin: 18px 0 28px;
+        color: #52605d;
+        font-size: 16px;
+        line-height: 1.65;
+      }
+
+      .actions {
+        display: grid;
+        gap: 10px;
+      }
+
+      button,
+      .link-button {
+        width: 100%;
+        min-height: 52px;
+        border-radius: 8px;
+        font: inherit;
+        font-size: 16px;
+        font-weight: 700;
+        letter-spacing: 0;
+        text-align: center;
+        touch-action: manipulation;
+      }
+
+      button {
+        border: 1px solid #176b55;
+        background: #176b55;
+        color: #fff;
+      }
+
+      .link-button {
+        display: grid;
+        place-items: center;
+        border: 1px solid #b9c2c0;
+        background: transparent;
+        color: #17201e;
+        text-decoration: none;
+      }
+
+      button:focus-visible,
+      .link-button:focus-visible {
+        outline: 3px solid #78b9a7;
+        outline-offset: 3px;
+      }
+
+      button:disabled { opacity: 0.68; }
+
+      #status {
+        min-height: 24px;
+        margin: 14px 0 0;
+        color: #3e4b48;
+        font-size: 14px;
+        line-height: 1.5;
+      }
+
+      textarea {
+        width: 100%;
+        min-height: 160px;
+        margin-top: 12px;
+        padding: 12px;
+        resize: vertical;
+        border: 1px solid #b9c2c0;
+        border-radius: 8px;
+        background: #fff;
+        color: #17201e;
+        font: 12px/1.5 ui-monospace, SFMono-Regular, Menlo, monospace;
+      }
+
+      [hidden] { display: none !important; }
+
+      @media (min-width: 600px) {
+        .actions { grid-template-columns: 1fr 1fr; }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <p class="version">Version {{VERSION}}</p>
+      <h1>Apple Watch Kindle Manipulator</h1>
+      <p class="summary">Kindleのページ送り用スクリプトをコピーするか、Userscriptsで直接開きます。</p>
+
+      <div class="actions">
+        <button id="copy-script" type="button">スクリプトをコピー</button>
+        <a class="link-button" href="./kindle-remote.user.js">Userscriptsで開く</a>
+      </div>
+
+      <p id="status" role="status" aria-live="polite"></p>
+      <textarea id="script-source" readonly hidden aria-label="ユーザースクリプト"></textarea>
+    </main>
+
+    <script>
+      const button = document.getElementById("copy-script");
+      const status = document.getElementById("status");
+      const sourceField = document.getElementById("script-source");
+
+      function selectSource(source) {
+        sourceField.value = source;
+        sourceField.hidden = false;
+        sourceField.focus();
+        sourceField.select();
+        sourceField.setSelectionRange(0, source.length);
+      }
+
+      button.addEventListener("click", async () => {
+        button.disabled = true;
+        status.textContent = "スクリプトを読み込んでいます";
+
+        try {
+          const response = await fetch("./kindle-remote.user.js", { cache: "no-store" });
+          if (!response.ok) throw new Error(`HTTP ${response.status}`);
+          const source = await response.text();
+
+          try {
+            await navigator.clipboard.writeText(source);
+          } catch {
+            selectSource(source);
+            if (!document.execCommand("copy")) {
+              status.textContent = "スクリプトを選択しました。コピーを実行してください";
+              return;
+            }
+          }
+
+          button.textContent = "コピーしました";
+          status.textContent = "クリップボードへコピーしました";
+        } catch {
+          status.textContent = "コピーできませんでした。Userscriptsで開いてください";
+        } finally {
+          button.disabled = false;
+        }
+      });
+    </script>
+  </body>
+</html>
