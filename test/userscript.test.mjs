@@ -65,5 +65,36 @@ test("point activation cannot start text selection", async () => {
   const pointEvents = source.match(/function pointEvents[\s\S]*?\n}\n\nfunction keyboard/)?.[0] ?? "";
 
   assert.match(pointEvents, /new MouseEvent\("click"/);
+  assert.match(source, /contentDocument/);
   assert.doesNotMatch(pointEvents, /pointerdown|mousedown|touchstart/);
+});
+
+test("remote controls can be disabled and are kept registered while enabled", async () => {
+  const source = await readFile("src/userscript.ts", "utf8");
+
+  assert.match(source, /REMOTE_HEARTBEAT_MS/);
+  assert.match(source, /window\.setInterval/);
+  assert.match(source, /setActionHandler\(action, null\)/);
+  assert.match(source, /audio\?\.pause\(\)/);
+  assert.match(source, /Disable remote controls/);
+});
+
+test("page direction supports auto, right, and left modes", async () => {
+  const source = await readFile("src/userscript.ts", "utf8");
+
+  assert.match(source, /type PageDirection = "auto" \| "right" \| "left"/);
+  assert.match(source, /\["auto", "Auto"\]/);
+  assert.match(source, /\["right", "Next right"\]/);
+  assert.match(source, /\["left", "Next left"\]/);
+  assert.match(source, /writingMode/);
+});
+
+test("minimize keeps a draggable restore button on screen", async () => {
+  const source = await readFile("src/userscript.ts", "utf8");
+
+  assert.doesNotMatch(source, /HIDDEN_STORAGE_KEY/);
+  assert.match(source, /awkm-compact/);
+  assert.match(source, /pointermove/);
+  assert.match(source, /Minimize/);
+  assert.match(source, /Show controls/);
 });

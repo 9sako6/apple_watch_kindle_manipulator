@@ -33,9 +33,12 @@ Userscriptsは無料のオープンソースSafari拡張です。ソースコー
 
 1. Kindle for Webで本を開きます。
 2. 右下の`Apple Watch Kindle Manipulator`パネルで`Next`と`Previous`を試します。
-3. `Enable remote controls`を押します。
-4. iPhoneまたはiPadのコントロールセンターで「次へ」「前へ」を試します。
-5. Apple Watchの「再生中」で「次へ」「前へ」を試します。
+3. 本の開き方に合わない場合は`Page direction`を`Next right`または`Next left`へ変更します。
+4. `Enable remote controls`を押します。停止するときは同じボタンの`Disable remote controls`を押します。
+5. iPhoneまたはiPadのコントロールセンターで「次へ」「前へ」を試します。
+6. Apple Watchの「再生中」で「次へ」「前へ」を試します。
+
+`Minimize`を押すとパネルが小さなメニューボタンになります。ボタンはドラッグで移動でき、タップするとパネルへ戻ります。位置はリロードすると初期化されます。
 
 次のMedia Session操作を割り当てています。
 

@@ -1,8 +1,8 @@
 const LOG_PREFIX = "[apple_watch_kindle_manipulator]";
 const PANEL_ID = "apple-watch-kindle-manipulator-panel";
-const HIDDEN_STORAGE_KEY = "apple_watch_kindle_manipulator:hidden";
 const AUDIO_ID = "apple-watch-kindle-manipulator-silent-audio";
 const FALLBACK_DELAY_MS = 90;
+const REMOTE_HEARTBEAT_MS = 2_000;
 
 interface DirectionConfig {
   direction: Direction;
@@ -21,9 +21,14 @@ interface ResultDetail {
 }
 
 type Direction = "next" | "previous";
+type PageDirection = "auto" | "right" | "left";
 
 let statusLine: HTMLElement | null = null;
 let detailsLine: HTMLElement | null = null;
+let remoteToggle: HTMLButtonElement | null = null;
+let remoteEnabled = false;
+let remoteHeartbeat: number | null = null;
+let pageDirection: PageDirection = "auto";
 
 function showResult(detail: ResultDetail): void {
   const time = new Date().toLocaleTimeString([], {
@@ -76,17 +81,44 @@ function createSilentWavUrl(): string {
   return URL.createObjectURL(new Blob([buffer], { type: "audio/wav" }));
 }
 
+function nextIsRight(): boolean {
+  if (pageDirection !== "auto") return pageDirection === "right";
+  const rootStyle = getComputedStyle(document.documentElement);
+  const bodyStyle = document.body ? getComputedStyle(document.body) : rootStyle;
+  return !(
+    document.documentElement.dir === "rtl" ||
+    document.body?.dir === "rtl" ||
+    rootStyle.direction === "rtl" ||
+    bodyStyle.direction === "rtl" ||
+    rootStyle.writingMode.startsWith("vertical") ||
+    bodyStyle.writingMode.startsWith("vertical")
+  );
+}
+
 function configFor(direction: Direction): DirectionConfig {
-  const next = direction === "next";
+  const physicalRight = direction === "next" ? nextIsRight() : !nextIsRight();
   return {
     direction,
-    arrowKey: next ? "ArrowRight" : "ArrowLeft",
-    pointX: Math.round(innerWidth * (next ? 0.86 : 0.14)),
+    arrowKey: physicalRight ? "ArrowRight" : "ArrowLeft",
+    pointX: Math.round(innerWidth * (physicalRight ? 0.86 : 0.14)),
     pointY: Math.round(innerHeight * 0.5),
-    words: next
+    words: direction === "next"
       ? ["next", "next page", "forward", "go forward", "進む", "次", "次へ", "次ページ"]
       : ["previous", "prev", "previous page", "back", "go back", "戻る", "前", "前へ", "前ページ"]
   };
+}
+
+function elementAtPoint(x: number, y: number, root: Document = document): Element {
+  const target = root.elementFromPoint(x, y) ?? root.body ?? root.documentElement;
+  if (!(target instanceof HTMLIFrameElement)) return target;
+  try {
+    const frameDocument = target.contentDocument;
+    if (!frameDocument) return target;
+    const rect = target.getBoundingClientRect();
+    return elementAtPoint(x - rect.left, y - rect.top, frameDocument);
+  } catch {
+    return target;
+  }
 }
 
 function wait(ms: number): Promise<void> {
@@ -121,7 +153,7 @@ function tag(element: Element): string {
 }
 
 function pointEvents(config: DirectionConfig): string {
-  const target = document.elementFromPoint(config.pointX, config.pointY) ?? document.body ?? document.documentElement;
+  const target = elementAtPoint(config.pointX, config.pointY);
   target.dispatchEvent(new MouseEvent("click", {
     bubbles: true,
     cancelable: true,
@@ -206,6 +238,36 @@ async function turnPage(direction: Direction, source: string): Promise<void> {
   }
 }
 
+const MEDIA_ACTIONS: Array<[MediaSessionAction, Direction]> = [
+  ["nexttrack", "next"],
+  ["previoustrack", "previous"],
+  ["seekforward", "next"],
+  ["seekbackward", "previous"]
+];
+
+function registerRemoteHandlers(): string[] {
+  const registered: string[] = [];
+  for (const [action, direction] of MEDIA_ACTIONS) {
+    try {
+      navigator.mediaSession.setActionHandler(action, () => void turnPage(direction, `mediaSession.${action}`));
+      registered.push(action);
+    } catch (error) {
+      console.log(LOG_PREFIX, `Unsupported Media Session action: ${action}`, error);
+    }
+  }
+  return registered;
+}
+
+function maintainRemoteControls(): void {
+  if (!remoteEnabled) return;
+  registerRemoteHandlers();
+  try {
+    navigator.mediaSession.playbackState = "playing";
+  } catch (error) {
+    console.log(LOG_PREFIX, "Could not maintain Media Session playback state.", error);
+  }
+}
+
 async function enableRemoteControls(): Promise<void> {
   if (!("mediaSession" in navigator)) throw new Error("Media Session API is unavailable.");
 
@@ -227,27 +289,43 @@ async function enableRemoteControls(): Promise<void> {
     });
   }
 
-  const actions: Array<[MediaSessionAction, Direction]> = [
-    ["nexttrack", "next"],
-    ["previoustrack", "previous"],
-    ["seekforward", "next"],
-    ["seekbackward", "previous"]
-  ];
-  const registered: string[] = [];
-  for (const [action, direction] of actions) {
+  remoteEnabled = true;
+  const registered = registerRemoteHandlers();
+  if (remoteHeartbeat !== null) window.clearInterval(remoteHeartbeat);
+  remoteHeartbeat = window.setInterval(maintainRemoteControls, REMOTE_HEARTBEAT_MS);
+  maintainRemoteControls();
+  if (remoteToggle) remoteToggle.textContent = "Disable remote controls";
+  report({ ok: true, action: "enable", method: "media-session", attempts: registered });
+}
+
+function disableRemoteControls(): void {
+  remoteEnabled = false;
+  if (remoteHeartbeat !== null) window.clearInterval(remoteHeartbeat);
+  remoteHeartbeat = null;
+  for (const [action] of MEDIA_ACTIONS) {
     try {
-      navigator.mediaSession.setActionHandler(action, () => void turnPage(direction, `mediaSession.${action}`));
-      registered.push(action);
+      navigator.mediaSession.setActionHandler(action, null);
     } catch (error) {
-      console.log(LOG_PREFIX, `Unsupported Media Session action: ${action}`, error);
+      console.log(LOG_PREFIX, `Could not clear Media Session action: ${action}`, error);
     }
   }
+  const audio = document.getElementById(AUDIO_ID) as HTMLAudioElement | null;
+  audio?.pause();
   try {
-    navigator.mediaSession.playbackState = "playing";
+    navigator.mediaSession.playbackState = "none";
   } catch (error) {
-    console.log(LOG_PREFIX, "Could not set Media Session playback state.", error);
+    console.log(LOG_PREFIX, "Could not clear Media Session playback state.", error);
   }
-  report({ ok: true, action: "enable", method: "media-session", attempts: registered });
+  if (remoteToggle) remoteToggle.textContent = "Enable remote controls";
+  report({ ok: true, action: "disable", method: "media-session", attempts: ["handlers", "silent-audio"] });
+}
+
+async function toggleRemoteControls(): Promise<void> {
+  if (remoteEnabled) {
+    disableRemoteControls();
+    return;
+  }
+  await enableRemoteControls();
 }
 
 function button(label: string, className: string, onClick: () => void): HTMLButtonElement {
@@ -259,6 +337,74 @@ function button(label: string, className: string, onClick: () => void): HTMLButt
   return element;
 }
 
+function directionControl(): HTMLLabelElement {
+  const label = document.createElement("label");
+  label.className = "awkr-direction";
+  label.textContent = "Page direction";
+  const select = document.createElement("select");
+  for (const [value, text] of [
+    ["auto", "Auto"],
+    ["right", "Next right"],
+    ["left", "Next left"]
+  ] as const) {
+    const option = document.createElement("option");
+    option.value = value;
+    option.textContent = text;
+    select.appendChild(option);
+  }
+  select.addEventListener("change", () => {
+    pageDirection = select.value as PageDirection;
+    report({ ok: true, action: "direction", method: pageDirection, attempts: [] });
+  });
+  label.appendChild(select);
+  return label;
+}
+
+function makeCompactButtonDraggable(panel: HTMLElement, compact: HTMLButtonElement): void {
+  let startX = 0;
+  let startY = 0;
+  let originLeft = 0;
+  let originTop = 0;
+  let dragging = false;
+  let suppressClick = false;
+
+  compact.addEventListener("pointerdown", (event) => {
+    const rect = panel.getBoundingClientRect();
+    startX = event.clientX;
+    startY = event.clientY;
+    originLeft = rect.left;
+    originTop = rect.top;
+    dragging = true;
+    suppressClick = false;
+    compact.setPointerCapture(event.pointerId);
+  });
+  compact.addEventListener("pointermove", (event) => {
+    if (!dragging) return;
+    const deltaX = event.clientX - startX;
+    const deltaY = event.clientY - startY;
+    if (Math.abs(deltaX) + Math.abs(deltaY) < 6) return;
+    suppressClick = true;
+    const left = Math.max(8, Math.min(innerWidth - 52, originLeft + deltaX));
+    const top = Math.max(8, Math.min(innerHeight - 52, originTop + deltaY));
+    panel.style.right = "auto";
+    panel.style.bottom = "auto";
+    panel.style.left = `${left}px`;
+    panel.style.top = `${top}px`;
+  });
+  compact.addEventListener("pointerup", (event) => {
+    dragging = false;
+    compact.releasePointerCapture(event.pointerId);
+  });
+  compact.addEventListener("click", () => {
+    if (suppressClick) {
+      suppressClick = false;
+      return;
+    }
+    panel.classList.remove("awkm-collapsed");
+    panel.removeAttribute("style");
+  });
+}
+
 function installStyles(): void {
   const style = document.createElement("style");
   style.textContent = `
@@ -267,7 +413,12 @@ function installStyles(): void {
       border: 1px solid rgba(30,30,30,.18); border-radius: 8px; background: rgba(250,250,247,.96);
       color: #181818; box-shadow: 0 6px 24px rgba(0,0,0,.18);
       font: 13px/1.35 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; letter-spacing: 0; }
-    #${PANEL_ID}[hidden] { display: none; }
+    #${PANEL_ID}.awkm-collapsed { width: 44px; padding: 0; border: 0; border-radius: 8px; background: transparent; box-shadow: none; }
+    #${PANEL_ID}.awkm-collapsed .awkm-expanded { display: none; }
+    #${PANEL_ID}:not(.awkm-collapsed) .awkm-compact { display: none; }
+    #${PANEL_ID} .awkm-compact { width: 44px; height: 44px; padding: 0; border: 1px solid rgba(30,30,30,.24);
+      border-radius: 8px; background: rgba(250,250,247,.96); color: #181818; box-shadow: 0 4px 16px rgba(0,0,0,.2);
+      font: 700 22px/1 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; touch-action: none; }
     #${PANEL_ID} .awkr-title { margin: 0 0 8px; overflow-wrap: anywhere; font-size: 13px; font-weight: 700; }
     #${PANEL_ID} .awkr-controls { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
     #${PANEL_ID} .awkr-button { min-height: 34px; box-sizing: border-box; border: 1px solid rgba(30,30,30,.22);
@@ -275,6 +426,10 @@ function installStyles(): void {
       text-align: center; touch-action: manipulation; }
     #${PANEL_ID} .awkr-primary { grid-column: 1 / -1; background: #1457d9; border-color: #1457d9; color: #fff; }
     #${PANEL_ID} .awkr-secondary { background: #f0f0ed; }
+    #${PANEL_ID} .awkr-direction { display: grid; grid-template-columns: auto 1fr; grid-column: 1 / -1;
+      align-items: center; gap: 8px; margin-top: 2px; font-size: 12px; font-weight: 600; }
+    #${PANEL_ID} .awkr-direction select { min-width: 0; min-height: 32px; border: 1px solid rgba(30,30,30,.22);
+      border-radius: 6px; background: #fff; color: #181818; font: inherit; }
     #${PANEL_ID} .awkr-status { margin-top: 8px; font-size: 12px; font-weight: 700; }
     #${PANEL_ID} .awkr-details { min-height: 18px; margin-top: 3px; overflow: hidden; color: #55524d;
       font-size: 11px; text-overflow: ellipsis; white-space: nowrap; }
@@ -289,14 +444,15 @@ function createPanel(): void {
   const panel = document.createElement("aside");
   panel.id = PANEL_ID;
   panel.setAttribute("aria-label", "Apple Watch Kindle Manipulator controls");
+  const expanded = document.createElement("div");
+  expanded.className = "awkm-expanded";
   const title = document.createElement("div");
   title.className = "awkr-title";
   title.textContent = "Apple Watch Kindle Manipulator";
   const controls = document.createElement("div");
   controls.className = "awkr-controls";
-  controls.append(
-    button("Enable remote controls", "awkr-button awkr-primary", () => {
-      void enableRemoteControls().catch((error: unknown) => {
+  remoteToggle = button("Enable remote controls", "awkr-button awkr-primary", () => {
+    void toggleRemoteControls().catch((error: unknown) => {
         report({
           ok: false,
           action: "enable",
@@ -305,13 +461,13 @@ function createPanel(): void {
           error: error instanceof Error ? `${error.name}: ${error.message}` : String(error)
         });
       });
-    }),
+  });
+  controls.append(
+    remoteToggle,
     button("Previous", "awkr-button", () => void turnPage("previous", "panel")),
     button("Next", "awkr-button", () => void turnPage("next", "panel")),
-    button("Hide", "awkr-button awkr-secondary", () => {
-      panel.hidden = true;
-      sessionStorage.setItem(HIDDEN_STORAGE_KEY, "true");
-    })
+    directionControl(),
+    button("Minimize", "awkr-button awkr-secondary", () => panel.classList.add("awkm-collapsed"))
   );
   statusLine = document.createElement("div");
   statusLine.className = "awkr-status";
@@ -319,9 +475,13 @@ function createPanel(): void {
   detailsLine = document.createElement("div");
   detailsLine.className = "awkr-details";
   detailsLine.textContent = "Open a book, then enable remote controls.";
-  panel.append(title, controls, statusLine, detailsLine);
+  expanded.append(title, controls, statusLine, detailsLine);
+  const compact = button("≡", "awkm-compact", () => undefined);
+  compact.setAttribute("aria-label", "Show controls");
+  compact.title = "Show controls";
+  makeCompactButtonDraggable(panel, compact);
+  panel.append(expanded, compact);
   document.documentElement.appendChild(panel);
-  panel.hidden = sessionStorage.getItem(HIDDEN_STORAGE_KEY) === "true";
 }
 
 createPanel();
