@@ -2,6 +2,7 @@
   "name": "apple_watch_kindle_manipulator",
   "version": "0.3.0",
   "private": true,
+  "license": "MIT",
   "type": "module",
   "scripts": {
     "build": "node scripts/build.mjs",

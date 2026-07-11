@@ -76,3 +76,7 @@ mise run release -- 0.2.1
 ```
 
 releaseはcleanで最新の`main`からのみ実行でき、mainとtagをatomic pushします。`v*`タグのGitHub Actionsは、バージョン履歴としてGitHub Releaseへ成果物を添付します。
+
+## ライセンス
+
+[MIT License](LICENSE)
