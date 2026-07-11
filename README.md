@@ -1,6 +1,6 @@
 # Apple Watch Kindle Remote
 
-Apple WatchやiPadOSのメディア操作を、iPad Safari上のKindle for Web / Kindle Cloud Readerのページ送りへ変換するUserscripts用ユーザースクリプトです。Apple Developer Programや独自のiOSアプリは必要ありません。
+Apple WatchやiOS/iPadOSのメディア操作を、iPhoneまたはiPadのSafari上にあるKindle for Web / Kindle Cloud Readerのページ送りへ変換するUserscripts用ユーザースクリプトです。Apple Developer Programや独自のiOSアプリは必要ありません。
 
 ## 最新版をインストール
 
@@ -10,17 +10,17 @@ iPhoneまたはiPadのSafariで[ビルド済みユーザースクリプト](http
 
 ## 必要なもの
 
-- iPad
-- iPadとペアリングされたApple Watch
+- iPhoneまたはiPad
+- iPhoneとペアリングされたApple Watch
 - App Storeの[Userscripts](https://apps.apple.com/app/userscripts/id1463298887)
 
 Userscriptsは無料のオープンソースSafari拡張です。ソースコードは[quoid/userscripts](https://github.com/quoid/userscripts)で公開されています。
 
-## iPadへのインストール
+## iPhone・iPadへのインストール
 
-1. iPadへUserscriptsをインストールして一度起動します。
+1. iPhoneまたはiPadへUserscriptsをインストールして一度起動します。
 2. Userscriptsが使用するスクリプト保存フォルダを確認します。
-3. iPadの「設定」から「アプリ」>「Safari」>「機能拡張」>「Userscripts」を開き、有効にします。
+3. 端末の「設定」から「アプリ」>「Safari」>「機能拡張」>「Userscripts」を開き、有効にします。
 4. Webサイトアクセスは、次のKindleドメインだけ許可します。
    - `read.amazon.co.jp`
    - `read.amazon.com`
@@ -34,7 +34,7 @@ Userscriptsは無料のオープンソースSafari拡張です。ソースコー
 1. Kindle for Webで本を開きます。
 2. 右下の`Kindle Remote`パネルで`Next`と`Previous`を試します。
 3. `Enable remote controls`を押します。
-4. iPadのコントロールセンターで「次へ」「前へ」を試します。
+4. iPhoneまたはiPadのコントロールセンターで「次へ」「前へ」を試します。
 5. Apple Watchの「再生中」で「次へ」「前へ」を試します。
 
 次のMedia Session操作を割り当てています。
@@ -58,7 +58,7 @@ Userscriptsは無料のオープンソースSafari拡張です。ソースコー
 
 ## 制約
 
-iPadOSがApple Watchのメディア操作をSafariのMedia Sessionへ配送するかは、OSバージョンや再生状態に依存する可能性があります。パネル操作、iPadのメディア操作、Apple Watchの順に確認すると、失敗箇所を切り分けられます。
+iOS/iPadOSがApple Watchのメディア操作をSafariのMedia Sessionへ配送するかは、端末、OSバージョン、再生状態に依存する可能性があります。パネル操作、端末のメディア操作、Apple Watchの順に確認すると、失敗箇所を切り分けられます。
 
 ## 開発
 

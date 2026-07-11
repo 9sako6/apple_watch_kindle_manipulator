@@ -37,7 +37,7 @@ test("release tag must match the package version", () => {
   assert.match(mismatching.stderr, /does not match package version/);
 });
 
-test("silent media remains logically audible to iPadOS", async () => {
+test("silent media remains logically audible to iOS and iPadOS", async () => {
   const script = await readFile("dist/kindle-remote.user.js", "utf8");
 
   assert.match(script, /new Blob/);
