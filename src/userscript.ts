@@ -122,7 +122,7 @@ function tag(element: Element): string {
 
 function pointEvents(config: DirectionConfig): string {
   const target = document.elementFromPoint(config.pointX, config.pointY) ?? document.body ?? document.documentElement;
-  const init: MouseEventInit = {
+  target.dispatchEvent(new MouseEvent("click", {
     bubbles: true,
     cancelable: true,
     composed: true,
@@ -130,47 +130,9 @@ function pointEvents(config: DirectionConfig): string {
     clientX: config.pointX,
     clientY: config.pointY,
     button: 0,
-    buttons: 1
-  };
-
-  if (typeof PointerEvent === "function") {
-    for (const type of ["pointerdown", "pointerup"] as const) {
-      target.dispatchEvent(new PointerEvent(type, { ...init, pointerId: 1, pointerType: "touch", isPrimary: true }));
-    }
-  }
-  for (const type of ["mousedown", "mouseup", "click"] as const) {
-    target.dispatchEvent(new MouseEvent(type, init));
-  }
-
-  if (typeof Touch === "function" && typeof TouchEvent === "function") {
-    const touch = new Touch({
-      identifier: Date.now(),
-      target,
-      clientX: config.pointX,
-      clientY: config.pointY,
-      pageX: scrollX + config.pointX,
-      pageY: scrollY + config.pointY,
-      screenX: screenX + config.pointX,
-      screenY: screenY + config.pointY
-    });
-    target.dispatchEvent(new TouchEvent("touchstart", {
-      bubbles: true,
-      cancelable: true,
-      composed: true,
-      touches: [touch],
-      targetTouches: [touch],
-      changedTouches: [touch]
-    }));
-    target.dispatchEvent(new TouchEvent("touchend", {
-      bubbles: true,
-      cancelable: true,
-      composed: true,
-      touches: [],
-      targetTouches: [],
-      changedTouches: [touch]
-    }));
-  }
-  return `point-events:${tag(target)}`;
+    buttons: 0
+  }));
+  return `point-click:${tag(target)}`;
 }
 
 function keyboard(config: DirectionConfig): string {

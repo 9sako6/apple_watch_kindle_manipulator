@@ -59,3 +59,11 @@ test("silent media remains logically audible to iOS and iPadOS", async () => {
   assert.match(script, /new Blob/);
   assert.doesNotMatch(script, /\.muted\s*=\s*true|\.volume\s*=\s*0/);
 });
+
+test("point activation cannot start text selection", async () => {
+  const source = await readFile("src/userscript.ts", "utf8");
+  const pointEvents = source.match(/function pointEvents[\s\S]*?\n}\n\nfunction keyboard/)?.[0] ?? "";
+
+  assert.match(pointEvents, /new MouseEvent\("click"/);
+  assert.doesNotMatch(pointEvents, /pointerdown|mousedown|touchstart/);
+});
