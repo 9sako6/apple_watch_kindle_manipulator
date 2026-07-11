@@ -32,4 +32,5 @@ test("README links mobile users to the latest and archived builds", async () => 
   const source = await readFile("README.md", "utf8");
   assert.match(source, /https:\/\/9sako6\.github\.io\/apple_watch_kindle_manipulator\/kindle-remote\.user\.js/);
   assert.match(source, /https:\/\/github\.com\/9sako6\/apple_watch_kindle_manipulator\/releases/);
+  assert.match(source, /Deployment branches and tags/);
 });

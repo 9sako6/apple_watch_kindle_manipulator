@@ -72,7 +72,13 @@ npm run build
 
 ## リリース
 
-初回のみ、GitHubのリポジトリ設定で`Pages`の`Source`を`GitHub Actions`にします。
+初回のみ、GitHubで次を設定します。
+
+1. `Settings` > `Pages`で`Source`を`GitHub Actions`にします。
+2. `Settings` > `Environments` > `github-pages`を開きます。
+3. `Deployment branches and tags`で、tagパターン`v*`からのデプロイを許可します。
+
+このtag許可がない場合、Release assetの作成には成功してもPages deployだけが拒否されます。設定後に既存の失敗runを直す場合は、Releaseを重複作成しないよう`Re-run failed jobs`を選びます。
 
 `package.json`のversionがリリースバージョンの正本です。リリースするときはversionを更新して検証し、同じバージョンのタグをpushします。
 
