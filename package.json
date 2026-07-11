@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "build": "node scripts/build.mjs",
-    "check": "tsc --noEmit && node --test && npm run build"
+    "check": "tsc --noEmit && node --test && npm run build",
+    "release:verify": "node scripts/verify-release-tag.mjs"
   },
   "devDependencies": {
     "esbuild": "^0.25.0",

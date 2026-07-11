@@ -2,35 +2,32 @@
 
 Apple WatchやiPadOSのメディア操作を、iPad Safari上のKindle for Web / Kindle Cloud Readerのページ送りへ変換するUserscripts用ユーザースクリプトです。Apple Developer Programや独自のiOSアプリは必要ありません。
 
+## 最新版をインストール
+
+iPhoneまたはiPadのSafariで[ビルド済みユーザースクリプト](https://9sako6.github.io/apple_watch_kindle_manipulator/kindle-remote.user.js)を開き、Userscriptsの機能拡張メニューからインストールします。
+
+更新は自動ではありません。新しいバージョンへ更新するときも同じリンクから手動で再インストールしてください。過去のビルドは[GitHub Releases](https://github.com/9sako6/apple_watch_kindle_manipulator/releases)から取得できます。
+
 ## 必要なもの
 
 - iPad
 - iPadとペアリングされたApple Watch
 - App Storeの[Userscripts](https://apps.apple.com/app/userscripts/id1463298887)
-- Macまたは、生成済みスクリプトをiPadへ渡す手段
 
 Userscriptsは無料のオープンソースSafari拡張です。ソースコードは[quoid/userscripts](https://github.com/quoid/userscripts)で公開されています。
-
-## スクリプトの生成
-
-```sh
-npm install
-npm run build
-```
-
-`dist/kindle-remote.user.js`が生成されます。
 
 ## iPadへのインストール
 
 1. iPadへUserscriptsをインストールして一度起動します。
 2. Userscriptsが使用するスクリプト保存フォルダを確認します。
-3. `kindle-remote.user.js`をAirDropまたはiCloud DriveでiPadへ送り、その保存フォルダへ置きます。
-4. iPadの「設定」から「アプリ」>「Safari」>「機能拡張」>「Userscripts」を開き、有効にします。
-5. Webサイトアクセスは、次のKindleドメインだけ許可します。
+3. iPadの「設定」から「アプリ」>「Safari」>「機能拡張」>「Userscripts」を開き、有効にします。
+4. Webサイトアクセスは、次のKindleドメインだけ許可します。
    - `read.amazon.co.jp`
    - `read.amazon.com`
    - `read.amazon.co.uk`
-6. SafariでKindle for Webを開き、Safariの機能拡張メニューからスクリプトが有効になっていることを確認します。
+5. Safariで[ビルド済みユーザースクリプト](https://9sako6.github.io/apple_watch_kindle_manipulator/kindle-remote.user.js)を開きます。
+6. Safariの機能拡張メニューでUserscriptsを開き、表示されるスクリプトをインストールします。
+7. Kindle for Webを開き、スクリプトが有効になっていることを確認します。
 
 ## 使い方
 
@@ -72,3 +69,21 @@ npm run build
 ```
 
 実装は`src/userscript.ts`に集約しています。生成物は`dist/kindle-remote.user.js`の1ファイルです。
+
+## リリース
+
+初回のみ、GitHubのリポジトリ設定で`Pages`の`Source`を`GitHub Actions`にします。
+
+`package.json`のversionがリリースバージョンの正本です。リリースするときはversionを更新して検証し、同じバージョンのタグをpushします。
+
+```sh
+npm version patch --no-git-tag-version
+npm run check
+git add package.json package-lock.json
+git commit -m "chore: release v0.2.1"
+git tag v0.2.1
+git push origin main
+git push origin v0.2.1
+```
+
+`v*`タグのGitHub Actionsが、GitHub Releaseへの成果物添付とGitHub Pagesの最新版更新を行います。タグと`package.json`のversionが一致しない場合は公開されません。

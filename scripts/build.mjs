@@ -1,10 +1,12 @@
-import { mkdir, rm } from "node:fs/promises";
+import { mkdir, readFile, rm } from "node:fs/promises";
 import { build } from "esbuild";
+
+const { version } = JSON.parse(await readFile("package.json", "utf8"));
 
 const userscriptHeader = `// ==UserScript==
 // @name         Apple Watch Kindle Remote
 // @namespace    https://github.com/9sako6/apple_watch_kindle_manipulator
-// @version      0.2.0
+// @version      ${version}
 // @description  Map Apple Watch media controls to Kindle for Web page turns.
 // @match        https://read.amazon.co.jp/*
 // @match        https://read.amazon.com/*
